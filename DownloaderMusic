@@ -1,0 +1,38 @@
+import re
+import os
+from pytube import YouTube
+
+def is_valid_url(url):
+    pattern = r"^(https?://)?(www\.)?(youtube\.com|youtu\.?be)/"
+    match = re.search(pattern, url)
+    return bool(match)
+
+def download_music(url, format, file_name):
+    if not is_valid_url(url):
+        print("URL non valide")
+        return
+
+    yt = YouTube(url)
+    audio = yt.streams.filter(only_audio=True).first()
+    if not audio:
+        print("Pas de fichier audio disponible pour cette vidéo")
+        return
+
+    supported_formats = ["mp3", "mp4"]
+    if format not in supported_formats:
+        print("Format non pris en charge. Les formats pris en charge sont :", supported_formats)
+        return
+
+    file_path = f"{file_name}.{format}"
+    if os.path.exists(file_path):
+        print(f"Le fichier {file_path} existe déjà.")
+        return
+
+    print(f"Téléchargement de {file_path} en cours...")
+    audio.download(file_path)
+    print(f"Téléchargement terminé avec succès en {format}!")
+
+url = input("Entrez l'URL de la vidéo YouTube :")
+format = input("Entrez le format de sortie (mp3/mp4) :")
+file_name = input("Entrez le nom de fichier :")
+download_music(url, format, file_name)
